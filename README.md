@@ -19,6 +19,9 @@ Follow [`docs/railway-wiring.md`](docs/railway-wiring.md) when creating or
 updating the marketplace template. It contains the exact service names,
 reference variables, generated secrets, ports, healthchecks, and volume mounts.
 
+Paste [`docs/description.md`](docs/description.md) into the Railway template
+**Description** field when publishing.
+
 Only the **app** URL should be opened in a browser. Postgres and Redis stay on
 Railway private networking. Railway allows **one volume per service** — mount
 `/models` only; the upstream plugins path is ephemeral on Railway (see wiring

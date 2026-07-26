@@ -139,6 +139,8 @@ database `0` is fine.
   private DNS resolve correctly.
 - Prefer the standard `manyfold3d/manyfold` image (separate Postgres + Redis),
   not `manyfold-solo`, so Railway volumes and sizing stay explicit.
+- Marketplace **Description**: paste `docs/description.md` into the template
+  Description field when publishing.
 - First boot can take 1–2 minutes while migrations run; wait for `/health`.
 - After deploy: open the public URL → set admin password → **Libraries → New**
   with path `/models` → upload a small STL/3MF to confirm storage + workers.
