@@ -45,12 +45,16 @@ upstream docs). Railway injects `PORT` on some plans — if the platform overrid
 it, leave `PORT` unset and point public networking at the injected value
 instead; Puma listens on `PORT`.
 
-Volumes:
+Volume (one per service — Railway limit;
+https://station.railway.com/feedback/multiple-volumes-per-service-7ce57788):
 
 | Mount path | Purpose |
 |------------|---------|
 | `/models` | Model library filesystem (create a library pointed here in the UI) |
-| `/usr/src/app/plugins` | Optional plugins directory |
+
+Upstream Compose also mounts `/usr/src/app/plugins`. On Railway leave that path
+**ephemeral** (no second volume). Plugins installed via the UI will not survive
+redeploys unless you later fold them under `/models` somehow.
 
 Healthcheck path: `/health` (timeout 300s — first boot runs `db:prepare`).
 
@@ -150,4 +154,5 @@ database `0` is fine.
 | App crash-loops on DB | Postgres not ready / wrong `DATABASE_*` refs |
 | Blank or cookie errors over HTTPS | Missing `HTTPS_ONLY=enabled` or wrong `PUBLIC_HOSTNAME` |
 | Cannot write models | Volume not mounted at `/models`, or PUID/PGID mismatch |
+| Plugins missing after redeploy | Only `/models` is persisted; plugins path is ephemeral on Railway |
 | Slow / OOM during analysis | Raise memory; lower `PERFORMANCE_WORKER_CONCURRENCY` if set high |

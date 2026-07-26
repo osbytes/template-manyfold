@@ -20,7 +20,9 @@ updating the marketplace template. It contains the exact service names,
 reference variables, generated secrets, ports, healthchecks, and volume mounts.
 
 Only the **app** URL should be opened in a browser. Postgres and Redis stay on
-Railway private networking.
+Railway private networking. Railway allows **one volume per service** — mount
+`/models` only; the upstream plugins path is ephemeral on Railway (see wiring
+docs).
 
 The wrapper currently tracks Manyfold `0.146.0` (Docker Hub semver tag for
 upstream release `v0.146.0`).
