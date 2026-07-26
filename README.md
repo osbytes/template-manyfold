@@ -11,7 +11,7 @@ The template runs Manyfold as three Railway services:
 
 - `app` — Manyfold web UI + workers (public)
 - `postgres` — application database
-- `redis` — cache and background jobs
+- `redis` — cache and background jobs (Redis 8; Railway deploys need auth in `REDIS_URL`)
 
 ## Railway template
 

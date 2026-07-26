@@ -26,7 +26,7 @@ PORT=3214
 PUID=1000
 PGID=1000
 SECRET_KEY_BASE=${{secret(64, "0123456789abcdef")}}
-REDIS_URL=redis://${{redis.RAILWAY_PRIVATE_DOMAIN}}:6379/1
+REDIS_URL=redis://default:${{redis.REDIS_PASSWORD}}@${{redis.RAILWAY_PRIVATE_DOMAIN}}:6379/1
 DATABASE_ADAPTER=postgresql
 DATABASE_HOST=${{postgres.RAILWAY_PRIVATE_DOMAIN}}
 DATABASE_PORT=5432
@@ -90,11 +90,35 @@ POSTGRES_PASSWORD=${{secret(32)}}
 
 ### redis
 
-- Image: `redis:7`
+Prefer Railway's **Redis** template/plugin (Redis 8). It enables auth by default;
+Manyfold will crash with `NOAUTH Authentication required` if `REDIS_URL` omits
+the password.
+
+If you wire Redis yourself instead of the plugin:
+
+- Image: `redis:8`
 - Public networking: disabled
+- Start command (auth required on Railway private networking is fine, but keep
+  the password in sync with `REDIS_URL` on `app`):
+
+```text
+redis-server --requirepass ${{REDIS_PASSWORD}}
+```
+
+- Variables on the `redis` service:
+
+```text
+REDIS_PASSWORD=${{secret(32)}}
+```
+
 - No volume required for a typical deploy (cache/job broker; jobs re-queue after
   restart). Add a volume at `/data` with a custom start command only if you need
   Redis persistence.
+
+If the Redis service exposes a full URL variable (`REDIS_URL` /
+`REDIS_PRIVATE_URL`), you may set `app`'s `REDIS_URL` to that reference instead
+of constructing it. Keep `/1` only if you intentionally separate DB indexes;
+database `0` is fine.
 
 ## Auth notes
 
@@ -121,7 +145,8 @@ POSTGRES_PASSWORD=${{secret(32)}}
 
 | Symptom | Likely cause |
 |---------|----------------|
-| App crash-loops mentioning Redis | `REDIS_URL` host wrong; must use `redis` private domain |
+| App crash-loops with `NOAUTH` / Redis auth | Railway Redis 8 requires a password; include `${{redis.REDIS_PASSWORD}}` (or use `${{redis.REDIS_URL}}`) |
+| App crash-loops mentioning Redis host | `REDIS_URL` host wrong; must use `redis` private domain |
 | App crash-loops on DB | Postgres not ready / wrong `DATABASE_*` refs |
 | Blank or cookie errors over HTTPS | Missing `HTTPS_ONLY=enabled` or wrong `PUBLIC_HOSTNAME` |
 | Cannot write models | Volume not mounted at `/models`, or PUID/PGID mismatch |
